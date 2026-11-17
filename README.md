@@ -58,8 +58,7 @@ sugerir tratamientos y productos por cada inestetismo. **Siempre lo aprueba la e
 
 | Nombre | Rol |
 | --- | --- |
-| _Por completar_ | _Por completar_ |
-| _Por completar_ | _Por completar_ |
+| Salomé Rodríguez | Investigación, diseño en Figma y desarrollo de la app |
 
 ## 4. Inteligencia artificial utilizada
 
