@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "es2022",
+    "module": "commonjs",
+    "lib": ["es2022", "dom"],
+    "types": ["node"],
+    "skipLibCheck": true,
+    "outDir": "../.test-dist",
+    "rootDir": ".."
+  },
+  "include": ["./**/*.ts", "../src/domain/**/*.ts", "../src/infrastructure/memoria/*.ts"]
+}

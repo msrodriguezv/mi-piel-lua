@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "Mi Piel LÚA",
+    "slug": "mi-piel-lua",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#FAF6F0",
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "ec.lua.mipiel"
+    }
+  }
+}
