@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { RecordatorioRetoque } from '../../application/CalcularProximoRetoque';
 import { Cita, EstadoCita } from '../../domain/citas/Cita';
-import { PUNTOS_POR_SERVICIO } from '../../domain/fidelizacion/ClubLua';
 import { contenedor } from '../../infrastructure/contenedor';
 import { Encabezado } from '../components/Encabezado';
 import { Tarjeta } from '../components/Tarjeta';
@@ -20,17 +19,18 @@ const fecha = (d: Date) => d.toLocaleDateString('es-EC', { weekday: 'long', day:
 export function MisCitasScreen({ version }: { version: number }) {
   const [citas, setCitas] = useState<Cita[]>([]);
   const [retoques, setRetoques] = useState<RecordatorioRetoque[]>([]);
+  const [puntos, setPuntos] = useState(0);
 
   useEffect(() => {
-    contenedor.citas.listar().then(setCitas);
-    contenedor.calcularRetoque.ejecutar().then(setRetoques);
+    contenedor.citas.listar().then(setCitas).catch(() => setCitas([]));
+    contenedor.calcularRetoque.ejecutar().then(setRetoques).catch(() => setRetoques([]));
+    contenedor.club.saldo().then(setPuntos).catch(() => setPuntos(0));
   }, [version]);
-
-  const puntos = citas.filter((c) => c.estado === 'realizada').length * PUNTOS_POR_SERVICIO;
 
   return (
     <ScrollView contentContainerStyle={styles.contenido}>
       <Encabezado antetitulo="MIS CITAS" titulo="Tu agenda LÚA" />
+      {citas.length === 0 ? <Text style={styles.detalle}>Todavía no tienes citas. Reserva la primera en Agendar.</Text> : null}
 
       {retoques.map((r) => (
         <Tarjeta key={r.servicio} estilo={styles.retoque}>

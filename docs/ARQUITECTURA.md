@@ -43,10 +43,18 @@ flowchart TB
 | `AgendarCita` | Valida fecha futura y código de promoción, crea la cita pendiente de anticipo |
 | `RegistrarPagoAnticipo` | Registra el anticipo y confirma la cita |
 | `CalcularProximoRetoque` | Toma la última cita realizada de cada servicio y calcula la ventana de retoque |
+| `MarcarCitaRealizada` | La especialista cierra la cita; exige consentimiento en la primera |
+| `CancelarCita` | Cancela una cita pendiente o confirmada |
+| `SubirFotoClinica` | Sube una foto solo si la clienta autorizó fotos clínicas |
+
+Puertos de la capa de aplicación: `AutenticacionGateway` (sesión y roles) y `PanelEspecialistaRepository`
+(modelo de lectura y escritura del panel).
 
 ## Infraestructura
 
-- **Repositorios en memoria** con datos semilla (para la demo en Expo Go).
+- **Repositorios de Supabase** (`infrastructure/supabase/`): implementan los mismos puertos del dominio
+  contra PostgreSQL. Las reglas críticas también viven en la base de datos (triggers y RLS).
+- **Repositorios en memoria** con datos semilla: modo demostración cuando no hay `.env`.
 - **`ApifyTendenciaGateway`**: consulta hashtags con el actor `clockworks/tiktok-scraper`.
   Corre **solo en backend/scripts**; el token nunca va en la app. Guarda únicamente métricas
   agregadas (número de vistas), nunca datos de personas.

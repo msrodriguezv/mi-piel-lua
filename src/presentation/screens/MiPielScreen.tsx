@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BIOTIPOS } from '../../domain/piel/Biotipo';
 import { Fototipo } from '../../domain/piel/Fototipo';
 import { PerfilPiel } from '../../domain/piel/PerfilPiel';
+import { Boton } from '../components/Boton';
 import { Chip } from '../components/Chip';
 import { Encabezado } from '../components/Encabezado';
 import { Tarjeta } from '../components/Tarjeta';
@@ -11,13 +12,15 @@ import { colores, espacio, fuentes, radio } from '../theme';
 interface Props {
   perfil: PerfilPiel;
   onCambiar: (perfil: PerfilPiel) => void;
+  nombre?: string;
+  onCerrarSesion?: () => void;
 }
 
-export function MiPielScreen({ perfil, onCambiar }: Props) {
+export function MiPielScreen({ perfil, onCambiar, nombre, onCerrarSesion }: Props) {
   return (
     <ScrollView contentContainerStyle={styles.contenido}>
       <Encabezado
-        antetitulo="MI PIEL LÚA"
+        antetitulo={nombre ? `HOLA, ${nombre.toUpperCase()}` : 'MI PIEL LÚA'}
         titulo="¿Cómo es tu piel?"
         subtitulo="Con esto filtramos cada tendencia para ti. Se guarda solo en tu teléfono."
       />
@@ -54,6 +57,8 @@ export function MiPielScreen({ perfil, onCambiar }: Props) {
           Pronto, los resultados del analizador facial de LÚA llegarán a tu app con sugerencias revisadas por tu especialista.
         </Text>
       </Tarjeta>
+
+      {onCerrarSesion ? <Boton titulo="Cerrar sesión" variante="secundario" onPress={onCerrarSesion} /> : null}
     </ScrollView>
   );
 }

@@ -73,8 +73,9 @@ el modelado DDD, el código, las pruebas y la documentación. El detalle está e
 | **Lenguaje** | TypeScript (modo estricto) |
 | **Metodología** | **DDD — Domain-Driven Design** |
 | **Diseño** | **Figma** (línea gráfica, atomic design, prototipo) |
+| **Base de datos** | **Supabase** (PostgreSQL, inicio de sesión, almacenamiento privado y reglas RLS) |
 | **Radar de tendencias** | Apify · actor `clockworks/tiktok-scraper` (solo backend) |
-| **Pruebas** | `node:test` sobre la capa de dominio |
+| **Pruebas** | `node:test` sobre el dominio y los casos de uso |
 
 ### Arquitectura DDD
 
@@ -86,9 +87,14 @@ src/
 │   ├── citas/         Cita, Anticipo, CódigoPromoción, Servicio, CalculadorRetoque
 │   ├── fidelizacion/  Club LÚA
 │   └── ficha/         Ficha estética, Consentimiento, Análisis facial (en desarrollo)
-├── application/       ← Casos de uso
-├── infrastructure/    ← Repositorios, gateway Apify, contenedor de dependencias
-└── presentation/      ← Pantallas y componentes React Native
+├── application/       ← Casos de uso y puertos (autenticación, panel de la especialista)
+├── infrastructure/
+│   ├── supabase/      Repositorios conectados a la base de datos
+│   ├── memoria/       Repositorios en memoria (modo demostración)
+│   ├── apify/         Radar de tendencias (solo backend)
+│   └── contenedor.ts  Elige Supabase o memoria según la configuración
+└── presentation/      ← Pantallas de la clienta y panel de la especialista
+supabase/migrations/   ← Esquema SQL, reglas de seguridad (RLS) y datos iniciales
 ```
 
 Más detalle en [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md).
@@ -101,12 +107,25 @@ Requisitos: **Node.js 22.13 o superior** y la app **Expo Go** en el celular.
 git clone https://github.com/msrodriguezv/mi-piel-lua.git
 cd mi-piel-lua
 npm install
-npx expo install react react-native expo-status-bar react-native-safe-area-context
+npx expo install react react-native expo-status-bar react-native-safe-area-context @supabase/supabase-js @react-native-async-storage/async-storage react-native-url-polyfill expo-image-picker
 npm install -D typescript @types/react @types/node
+copy .env.example .env
 npx expo start
 ```
 
-Escanea el código QR con **Expo Go** (Android) o con la cámara (iPhone).
+En Mac o Linux usa `cp .env.example .env`. Sin el archivo `.env`, la app abre en **modo demostración** con datos en memoria.
+
+Escanea el código QR con **Expo Go** (Android) o con la cámara (iPhone). En iPhone, inicia sesión con la misma cuenta de Expo en Expo Go y en la computadora (`npx expo login`).
+
+### Base de datos y panel de la especialista
+
+La primera vez hay que crear las tablas en Supabase y dar el rol de especialista a tu cuenta.
+Los pasos están en [`docs/SUPABASE.md`](docs/SUPABASE.md).
+
+| Rol | Qué ve al iniciar sesión |
+| --- | --- |
+| Clienta | Mi piel, Tendencias, Agendar y Mis citas |
+| Especialista | Panel: Agenda (marcar realizada o cancelar), Fichas (consentimiento, alergias, notas y fotos privadas) y Tendencias (publicar u ocultar) |
 
 > Si tu Expo Go pide otra versión del SDK, ejecuta `npx expo install expo@latest --fix`.
 
@@ -131,7 +150,8 @@ npm test
 - El biotipo y el fototipo se guardan **solo en el teléfono** de la clienta.
 - El radar de tendencias usa **solo métricas generales de hashtags**: no guarda perfiles, nombres ni comentarios.
 - Las fotos de antes y después y la ficha estética son **solo para la especialista**, con consentimiento informado.
-- El token de Apify **nunca** va dentro de la app (ver `.env.example`).
+- El token de Apify y la clave secreta de Supabase **nunca** van dentro de la app (ver `.env.example`).
+- La base de datos aplica **seguridad por fila (RLS)**: cada clienta ve solo sus citas, y solo la especialista ve fichas y fotos.
 
 ---
 

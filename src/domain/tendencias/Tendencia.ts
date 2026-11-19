@@ -46,6 +46,7 @@ export class Tendencia {
   get pros(): readonly string[] { return this.datos.pros; }
   get contras(): readonly string[] { return this.datos.contras; }
   get confiabilidad(): NivelConfiabilidad { return this.datos.confiabilidad; }
+  get validada(): boolean { return this.datos.validadaPorEspecialista; }
 
   /** Solo las tendencias revisadas por la especialista se muestran a las clientas. */
   get publicable(): boolean {

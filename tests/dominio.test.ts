@@ -68,3 +68,44 @@ test('Solo la especialista ve las fotos clínicas', () => {
   assert.throws(() => ficha.verFotos('clienta'));
   assert.equal(ficha.verFotos('especialista').length, 1);
 });
+
+import { AgendarCita } from '../src/application/AgendarCita';
+import { RegistrarPagoAnticipo } from '../src/application/RegistrarPagoAnticipo';
+import {
+  CitaRepositoryMemoria, CodigoPromocionRepositoryMemoria, ServicioRepositoryMemoria,
+} from '../src/infrastructure/memoria/CitaRepositoryMemoria';
+import { generarId } from '../src/domain/compartido/generarId';
+
+function casoDeUso() {
+  const citas = new CitaRepositoryMemoria();
+  const codigos = new CodigoPromocionRepositoryMemoria([
+    CodigoPromocion.crear('LIFTING10', 10, new Date('2027-12-31'), 'Reel'),
+  ]);
+  return { citas, agendar: new AgendarCita(citas, codigos, new ServicioRepositoryMemoria()) };
+}
+
+test('Agendar: crea la cita pendiente y el anticipo la confirma', async () => {
+  const { citas, agendar } = casoDeUso();
+  const hoy = new Date('2026-12-01T08:00:00');
+  const cita = await agendar.ejecutar({ servicioId: 'lifting', fechaHora: new Date('2026-12-02T10:00:00'), esPrimeraCita: true, codigoPromocion: 'lifting10' }, hoy);
+  assert.equal(cita.estado, 'pendiente_anticipo');
+  assert.equal(cita.codigo?.codigo, 'LIFTING10');
+  await new RegistrarPagoAnticipo(citas).ejecutar(cita.id, 10, 'deuna');
+  assert.equal((await citas.buscar(cita.id))?.estado, 'confirmada');
+});
+
+test('Agendar: no permite dos citas en el mismo horario ni servicios inexistentes', async () => {
+  const { agendar } = casoDeUso();
+  const hoy = new Date('2026-12-01T08:00:00');
+  const fecha = new Date('2026-12-02T10:00:00');
+  await agendar.ejecutar({ servicioId: 'lifting', fechaHora: fecha, esPrimeraCita: false }, hoy);
+  await assert.rejects(agendar.ejecutar({ servicioId: 'laminado-cejas', fechaHora: fecha, esPrimeraCita: false }, hoy), /horario/);
+  await assert.rejects(agendar.ejecutar({ servicioId: 'no-existe', fechaHora: new Date('2026-12-03T10:00:00'), esPrimeraCita: false }, hoy), /servicio/);
+  await assert.rejects(agendar.ejecutar({ servicioId: 'lifting', fechaHora: new Date('2026-12-04T10:00:00'), esPrimeraCita: false, codigoPromocion: 'FALSO99' }, hoy), /código/);
+});
+
+test('Los identificadores generados son UUID v4 válidos para la base de datos', () => {
+  const id = generarId();
+  assert.match(id, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+  assert.notEqual(id, generarId());
+});

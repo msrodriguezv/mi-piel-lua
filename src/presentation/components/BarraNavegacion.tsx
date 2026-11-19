@@ -2,19 +2,22 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colores, espacio } from '../theme';
 
-export type Pestana = 'piel' | 'tendencias' | 'agendar' | 'citas';
+export interface ItemNavegacion<T extends string> {
+  id: T;
+  etiqueta: string;
+  icono: string;
+}
 
-const PESTANAS: { id: Pestana; etiqueta: string; icono: string }[] = [
-  { id: 'piel', etiqueta: 'Mi piel', icono: '◐' },
-  { id: 'tendencias', etiqueta: 'Tendencias', icono: '✦' },
-  { id: 'agendar', etiqueta: 'Agendar', icono: '＋' },
-  { id: 'citas', etiqueta: 'Mis citas', icono: '◷' },
-];
+interface Props<T extends string> {
+  items: ItemNavegacion<T>[];
+  activa: T;
+  onCambiar: (id: T) => void;
+}
 
-export function BarraNavegacion({ activa, onCambiar }: { activa: Pestana; onCambiar: (p: Pestana) => void }) {
+export function BarraNavegacion<T extends string>({ items, activa, onCambiar }: Props<T>) {
   return (
     <View style={styles.barra}>
-      {PESTANAS.map((p) => {
+      {items.map((p) => {
         const activo = p.id === activa;
         return (
           <Pressable

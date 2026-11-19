@@ -28,3 +28,8 @@ export class CuentaClubLua {
     this.sumar(PUNTOS_POR_REFERIDA, 'Amiga referida');
   }
 }
+
+export interface ClubRepository {
+  /** Puntos acumulados de la clienta que inició sesión. */
+  saldo(): Promise<number>;
+}
